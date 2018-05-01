@@ -82,38 +82,27 @@ void Motor::write(int speed){
     /*
     Sets motor speed from input. Speed = 0 is stopped, -255 is full reverse, 255 is full ahead.
     */
+    
     if (_attachedState == 1){
         speed = constrain(speed, -255, 255);
         _lastSpeed = speed; //saves speed for use in additive write
         bool forward = (speed > 0);
         speed = abs(speed); //remove sign from input because direction is set by control pins on H-bridge   
         
-        bool usePin1 = ((_pin1 != 4) && (_pin1 != 13) && (_pin1 != 11) && (_pin1 != 12)); // avoid PWM using timer0 or timer1
-        bool usePin2 = ((_pin2 != 4) && (_pin2 != 13) && (_pin2 != 11) && (_pin2 != 12)); // avoid PWM using timer0 or timer1
+        bool usePin1   = ((_pin1 != 4) && (_pin1 != 13) && (_pin1 != 11) && (_pin1 != 12)); // avoid PWM using timer0 or timer1
+        bool usePin2   = ((_pin2 != 4) && (_pin2 != 13) && (_pin2 != 11) && (_pin2 != 12)); // avoid PWM using timer0 or timer1
+        bool usepwmPin = ((_pwmPin != 4) && (_pwmPin != 13) && (_pwmPin != 11) && (_pwmPin != 12)); // avoid PWM using timer0 or timer1
+        
         if (forward) {
-            if (speed > 0) {
-              if (usePin2) {
-                digitalWrite(_pin1 , HIGH );
-                analogWrite(_pin2 , 255 - speed); // invert drive signals - don't alter speed
-              } else {
-                analogWrite(_pin1 , speed);
-                digitalWrite(_pin2 , LOW );
-              }
-            } else {
-              digitalWrite(_pin1 , LOW );
-              digitalWrite(_pin2 , LOW );
-            }
+            digitalWrite(_pin1 , HIGH );
+            digitalWrite(_pin2 ,  LOW  ); // invert drive signals - don't alter speed
         } else{
-            if (usePin1) {
-              analogWrite(_pin1 , 255 - speed); // invert drive signals - don't alter speed
-              digitalWrite(_pin2 , HIGH );
-            } else {
-                analogWrite(_pin2 , speed);
-                digitalWrite(_pin1 , LOW );
-            }
+            digitalWrite(_pin2 , HIGH);
+            digitalWrite(_pin1 , LOW );
         }  
-        digitalWrite(_pwmPin, HIGH);
+        analogWrite(_pwmPin, speed);
     }
+    
 }
 
 void Motor::directWrite(int voltage){
